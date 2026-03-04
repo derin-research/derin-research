@@ -1,0 +1,102 @@
+@echo off
+:: ===============================
+:: DERIN RESEARCH WEBSITE AUTOMATION
+:: Creates React app, sets up GitHub repo, ready for Vercel deployment
+
+:: 1. Go to Desktop
+cd %USERPROFILE%\Desktop
+
+:: 2. Create project folder
+mkdir DerinResearchWebsite
+cd DerinResearchWebsite
+
+:: 3. Initialize Node project
+npm init -y
+
+:: 4. Install dependencies
+npm install react react-dom framer-motion emailjs-com react-scripts
+
+:: 5. Create folder structure
+mkdir src
+mkdir public
+
+:: 6. Create public/index.html
+echo ^<!DOCTYPE html^> > public\index.html
+echo ^<html lang="en"^> >> public\index.html
+echo ^<head^> >> public\index.html
+echo   ^<meta charset="UTF-8" /^> >> public\index.html
+echo   ^<meta name="viewport" content="width=device-width, initial-scale=1.0" /^> >> public\index.html
+echo   ^<title^>Derin Research & Data Entry^</title^> >> public\index.html
+echo ^</head^> >> public\index.html
+echo ^<body^> >> public\index.html
+echo   ^<div id="root"^>^</div^> >> public\index.html
+echo ^</body^> >> public\index.html
+echo ^</html^> >> public\index.html
+
+:: 6b. Create public/_redirects for Vercel routing
+echo /* /index.html 200 > public\_redirects
+
+:: 7. Create src/App.js
+(
+echo import React, { useState } from "react";
+echo import emailjs from 'emailjs-com';
+echo;
+echo export default function App() {
+echo     const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+echo     const [submitted, setSubmitted] = useState(false);
+echo;
+echo     const handleSubmit = (e) => {
+echo         e.preventDefault();
+echo         emailjs.send('service_8a14zrl','template_4217dfa', formData,'rk0V0zj1sYCUTeSXz')
+echo         .then(() => setSubmitted(true));
+echo     };
+echo;
+echo     return (
+echo         ^<div style={{textAlign:'center', padding:'50px'}}^>
+echo             ^<h1^>Derin Research & Data Entry^</h1^>
+echo             ^<p^>Reliable Writing and Data Entry Services at $5/hour^</p^>
+echo             ^<form onSubmit={handleSubmit}^>
+echo                 ^<input type='text' placeholder='Your Name' required value={formData.name} onChange={(e)=>setFormData({...formData, name:e.target.value})} /^>
+echo                 ^<br /^>
+echo                 ^<input type='email' placeholder='Your Email' required value={formData.email} onChange={(e)=>setFormData({...formData, email:e.target.value})} /^>
+echo                 ^<br /^>
+echo                 ^<textarea placeholder='Your Message' required value={formData.message} onChange={(e)=>setFormData({...formData, message:e.target.value})} /^>
+echo                 ^<br /^>
+echo                 ^<button type='submit'^>Send Message^</button^>
+echo             ^</form^>
+echo             {submitted && ^<p^>Message sent!^</p^>}
+echo         ^</div^>
+echo     );
+echo }
+) > src\App.js
+
+:: 8. Create src/index.js
+(
+echo import React from 'react';
+echo import ReactDOM from 'react-dom/client';
+echo import App from './App';
+echo;
+echo const root = ReactDOM.createRoot(document.getElementById('root'));
+echo root.render(^<App /^>);
+) > src\index.js
+
+:: 9. Update package.json scripts for React
+powershell -Command "(gc package.json) -replace '\"test\": \"echo \\\\\"Error.*','\"start\": \"react-scripts start\", \"build\": \"react-scripts build\"' | Out-File -encoding ASCII package.json"
+
+:: 10. Set Git identity
+git config --global user.name "derin-research"
+git config --global user.email "zainabalao00@gmail.com"
+
+:: 11. Initialize Git and push to GitHub
+git init
+git add .
+git commit -m "Initial commit - Derin Research website"
+git branch -M main
+git remote add origin https://github.com/derin-research/derin-research.git
+git push -u origin main
+
+:: 12. Optional: Deploy to Vercel
+npm install -g vercel
+vercel --prod --confirm
+
+pause
